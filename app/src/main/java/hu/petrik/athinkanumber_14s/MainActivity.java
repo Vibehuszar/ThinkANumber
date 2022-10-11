@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,13 +24,13 @@ public class MainActivity extends AppCompatActivity {
     private Toast egyediToast;
     private boolean nehezseg;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-
-        //ujJatek();
+        ujJatek();
 
         buttonTipp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,15 +39,17 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this,
                             "A gondolt szám kisebb", Toast.LENGTH_SHORT).show();
                     eletLevon();
+                    egyediToast.show();
 
                 }
                 else if (gondoltSzam > tippeltSzam){
                     Toast.makeText(MainActivity.this,
                             "A gondolt szám nagyobb", Toast.LENGTH_SHORT).show();
                     eletLevon();
+                    egyediToast.show();
                 }
                 else{
-                    //játék vége átírás (setTitle - Nyertél)
+                    builderJatekVege.setTitle("Nyertél");
                     builderJatekVege.show();
                 }
             }
@@ -61,9 +64,12 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     Toast.makeText(MainActivity.this,
                             "A szám nem lehet ksiebb mint 1", Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
+
+
         buttonNovel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,10 +80,58 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     Toast.makeText(MainActivity.this,
                             "A szám nem lehet ksiebb mint" + maxSzam, Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
+
+        buttonKonnyu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nehezseg = false;
+                builderNehezseg.setTitle("Könnyű");
+                builderNehezseg.create();
+                builderNehezseg.show();
+            }
+        });
+
+        buttonNehez.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nehezseg = true;
+                builderNehezseg.setTitle("Nehéz");
+                builderNehezseg.create();
+                builderNehezseg.show();
+            }
+        });
     }
+
+    private void ujJatek() {
+        //Kezdeti értékek az Integereknek:
+        maxSzam = 10;
+        Random random = new Random();
+        gondoltSzam = random.nextInt(maxSzam)+1;
+        elet = 3;
+        tippeltSzam = 1;
+        textViewTipp.setText(String.valueOf(tippeltSzam));
+        imageViewElet1.setImageResource(R.drawable.heart2);
+        imageViewElet2.setImageResource(R.drawable.heart2);
+        imageViewElet3.setImageResource(R.drawable.heart2);
+        imageViewElet4.setImageResource(R.drawable.heart2);
+        imageViewElet5.setImageResource(R.drawable.heart2);
+        if(nehezseg){
+            maxSzam = 40;
+            gondoltSzam = random.nextInt(maxSzam) + 1;
+            elet = 5;
+            tippeltSzam = 0;
+            imageViewElet4.setVisibility(View.VISIBLE);
+            imageViewElet5.setVisibility(View.VISIBLE);
+        }else{
+            imageViewElet4.setVisibility(View.GONE);
+            imageViewElet5.setVisibility(View.GONE);
+        }
+    }
+
 
     private void eletLevon() {
 
@@ -98,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         }
         elet--;
         if (elet < 1){
-            //játék végét megváltpztatni (setTitle - Vesztettél)
+            builderJatekVege.setTitle("Vesztettél").create();
             builderJatekVege.show();
         }
     }
@@ -122,12 +176,13 @@ public class MainActivity extends AppCompatActivity {
         maxSzam = 10;
         Random random = new Random();
         gondoltSzam = random.nextInt(maxSzam)+1;
+        nehezseg = false;
         elet = 5;
         tippeltSzam = 0;
         //Játékvége felugró ablak megalkotása
         builderJatekVege = new AlertDialog.Builder(MainActivity.this);
         builderJatekVege.setCancelable(false)
-                .setTitle("Nyert / VEsztett")
+                .setTitle("Nyert / Vesztett")
                 .setMessage("Szeretne új játékot játszani?")
                 .setNegativeButton("Nem", new DialogInterface.OnClickListener() {
                     @Override
@@ -138,10 +193,33 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Igen", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                       //ujJatek();
+                       ujJatek();
                     }
                 })
                 .create();
+        //Játék nehézség felugró ablak megalkotása
+        builderNehezseg = new AlertDialog.Builder(MainActivity.this);
+        builderNehezseg.setCancelable(false)
+                .setTitle("Nehéz / Könnyű")
+                .setMessage("Szeretnéd változtatni a játék nehézségét?")
+                .setNegativeButton("Nem", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setPositiveButton("Igen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ujJatek();
+                    }
+                })
+                .create();
+        egyediToast = new Toast(getApplicationContext());
+        egyediToast.setDuration(Toast.LENGTH_SHORT);
+        View view = getLayoutInflater().inflate(R.layout.egyedi_toast, findViewById(R.id.customToast));
+        egyediToast.setView(view);
+        egyediToast.setGravity(Gravity.CENTER, 0, 0);
 
     }
 }
